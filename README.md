@@ -7,11 +7,16 @@ Aktuell werden unterstützt:
 In Planung:
 * REWE
 
+# Noch in Arbeit
+* Speichern des Datums eines Kaufs (Extrahieren aus dem E-Bon)
+* Speichern des korrekten Kaufpreises
+* Speichern des Mehwertsteuersatzes
+
 # Vorbereitung zu Entwicklung
 
-pip install pdfquery
-pip install pandas
-pip install peewee
+* pip install pdfquery
+* pip install pandas
+* pip install peewee
 
 # Hilfreiche Doku
 

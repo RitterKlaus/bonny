@@ -1,0 +1,1 @@
+Hier wird eine CSV-Datei mit allen gekauften Artikeln erstellt.
