@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Datenbank
+*.sqlite3
+*.csv
+
+# eigene Testdaten
+*.pdf
+*.xml
+local-scratch.py
+
+# Cache
+*.xml.zip
