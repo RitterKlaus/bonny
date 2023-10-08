@@ -1,7 +1,7 @@
-import BonnyConfig
+import src.bonny_config as bonny_config
 from peewee import *
 
-db = SqliteDatabase(BonnyConfig.DATABASE)
+db = SqliteDatabase(bonny_config.DATABASE)
 
 class Article(Model):
     description = CharField()

@@ -1,4 +1,3 @@
-import pandas as pd
 import pdfquery
 import os
 import re
@@ -9,10 +8,11 @@ from playhouse.dataset import DataSet
 from datetime import datetime
 import pytz
 
-import BonnyConfig
-from Article import Article
+import src.bonny_config as bonny_config
+from src.model.Article import Article
+from src.model.Receipt import Receipt
 
-TZ = pytz.timezone(BonnyConfig.TIMEZONE)
+TZ = pytz.timezone(bonny_config.TIMEZONE)
 
 
 def liste_pdf_in_verzeichnis(pfad):
@@ -74,6 +74,27 @@ def dm_parse_artikelzeile(zeile):
     else:
         return False, None, None
 
+def dm_parse_receipt_number(zeile):
+    pattern = r'Beleg-Nr\.\s*([0-9]+)'
+    match = re.search(pattern, zeile)
+    
+    if match:
+        beleg_nr = match.group(1)
+        print("Beleg-Nr.:", beleg_nr)
+        return True, beleg_nr
+    else:
+        return False, None
+    
+def dm_parse_date_of_purchase(zeile):
+    pattern = r'\w+\s*(\d+\,\d+)\s([12])\s'
+    match = re.search(pattern, zeile)
+    
+    if match:
+        betrag_mwst = match.group(1)
+        mwst = match.group(2)
+        return True, betrag_mwst
+    else:
+        return False, None
 
 def extrahiere_von_dm(pdf):
     """Der E-Bon von dm-drogerie markt ist zeilenweise aufgebaut.
@@ -84,6 +105,7 @@ def extrahiere_von_dm(pdf):
     # Definieren Sie den XPath-Ausdruck, um nach LTTextBoxHorizontal-Tags zu suchen
     xpath_expression = '//LTTextBoxHorizontal'
 
+    receipt = Receipt(store = storename, date_of_purchase = datetime.now(), number = 'none') # mit unbekannten Werten starten
     # Extrahieren Sie die Texte aus den gefundenen Tags
     text_elements = pdf.tree.xpath(xpath_expression)
     artikelzeilen = []
@@ -101,6 +123,13 @@ def extrahiere_von_dm(pdf):
                                                           15, 0, 0, 0,
                                                           tzinfo=TZ))
             article.save()
+        dop_found, found_dop = dm_parse_date_of_purchase(text_content)
+        if dop_found:
+            receipt.date_of_purchase = found_dop
+        number_found, found_number = dm_parse_receipt_number(text_content)
+        if number_found:
+            receipt.number = found_number
+    receipt.save()
     print (artikelzeilen)
     return artikelzeilen 
 
@@ -108,19 +137,19 @@ def extrahiere_von_dm(pdf):
 def main():
     # Wechsle in das Verzeichnis des Scripts als Arbeitsverzeichnis
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    pfad = os.getcwd() + '/input'
+    pfad = os.getcwd() + '/../input'
     pdf_liste = liste_pdf_in_verzeichnis(pfad)
 
     for pdf in pdf_liste:
         # PDF lesen und Inhalt in XML konvertieren
         pdf = pdfquery.PDFQuery(pdf)
         pdf.load()
-        pdf.tree.write('tmp/ebon.xml', pretty_print = True, encoding='utf-8')
+        pdf.tree.write('../tmp/ebon.xml', pretty_print = True, encoding='utf-8')
 
         # Datenbank öffnen
-        db = SqliteDatabase(BonnyConfig.DATABASE)
+        db = SqliteDatabase(bonny_config.DATABASE)
         db.connect()
-        db.create_tables([Article])
+        db.create_tables([Article, Receipt])
 
         # Format des E-Bons erkennen
         supermarkt = erkenne_supermarkt(pdf)
@@ -134,10 +163,10 @@ def main():
         db.close()
 
         # Datenbank als CSV exportieren
-        ds = DataSet('sqlite:///' + BonnyConfig.DATABASE)
+        ds = DataSet('sqlite:///' + bonny_config.DATABASE)
         query = Article.select().order_by(Article.id)
         # delimiter und lineterminator werden von peewee/playhouse an die Bibliothek CSVExporter weitergereicht
-        ds.freeze(query = query, format='csv', filename='output/bonny_export.csv', encoding='utf8', delimiter=';', lineterminator='\n')
+        ds.freeze(query = query, format='csv', filename='../output/bonny_export.csv', encoding='utf8', delimiter=';', lineterminator='\n')
         ds.close()
 
 
