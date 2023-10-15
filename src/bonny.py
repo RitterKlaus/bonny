@@ -86,13 +86,12 @@ def dm_parse_receipt_number(zeile):
         return False, None
     
 def dm_parse_date_of_purchase(zeile):
-    pattern = r'\w+\s*(\d+\,\d+)\s([12])\s'
+    pattern = re.compile(r"Datum:\s+(\d{2}\.\d{2}.\d{4})")
     match = re.search(pattern, zeile)
     
     if match:
-        betrag_mwst = match.group(1)
-        mwst = match.group(2)
-        return True, betrag_mwst
+        date_of_purchase = match.group(1)
+        return True, date_of_purchase
     else:
         return False, None
 
