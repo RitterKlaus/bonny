@@ -1,8 +1,8 @@
 import unittest
 
-from src.bonny import dm_parse_receipt_number, dm_parse_date_of_purchase
+from parse_dm import dm_parse_receipt_number, dm_parse_date_of_purchase
 
-class TestBonny(unittest.TestCase):
+class TestDmParser(unittest.TestCase):
     def test_irgendwas(self):
         self.assertEqual(3, 3)
 

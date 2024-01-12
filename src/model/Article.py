@@ -1,4 +1,4 @@
-import src.bonny_config as bonny_config
+import bonny_config as bonny_config
 from peewee import *
 
 db = SqliteDatabase(bonny_config.DATABASE)
