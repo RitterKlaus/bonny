@@ -23,3 +23,4 @@ In Planung:
 * https://docs.peewee-orm.com/en/latest/peewee/quickstart.html
 * CSV-Trennzeichen als kwargs mitgeben https://stackoverflow.com/questions/16823695/how-to-use-delimiter-for-csv-in-python
 * CSV-Leerzeilen vermeiden https://stackoverflow.com/questions/3348460/csv-file-written-with-python-has-blank-lines-between-each-row
+* https://stackoverflow.com/questions/1896918/running-unittest-with-typical-test-directory-structure/24266885#24266885
