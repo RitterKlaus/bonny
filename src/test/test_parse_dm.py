@@ -4,7 +4,7 @@ from parse_dm import dm_parse_receipt_number, dm_parse_date_of_purchase
 
 class TestDmParser(unittest.TestCase):
     def test_irgendwas(self):
-        self.assertEqual(3, 33)
+        self.assertEqual(3, 3)
 
     def test_dm_parse_receipt_number_1(self):
         gefunden, ergebnis = dm_parse_receipt_number('Beleg-Nr.      3456')

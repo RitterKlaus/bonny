@@ -2,7 +2,7 @@
     "python.testing.unittestArgs": [
         "--verbose",
         "--start-directory",
-        "src.test",
+        "src/test",
         "--pattern",
         "test_*.py",
         "--top-level-directory",
