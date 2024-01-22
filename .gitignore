@@ -11,5 +11,8 @@ __pycache__/
 *.xml
 local-scratch.py
 
+# Rechner-abhängige Dateien
+.env
+
 # Cache
 *.xml.zip

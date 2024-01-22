@@ -18,6 +18,8 @@ In Planung:
 * pip install pandas
 * pip install peewee
 
+oder: pip install -r requirements.txt
+
 # Hilfreiche Doku
 
 * https://docs.peewee-orm.com/en/latest/peewee/quickstart.html

@@ -37,12 +37,23 @@ def liste_pdf_in_verzeichnis(pfad):
 def erkenne_supermarkt(pdf):
     """Erkenne den Supermarkt anhand von eindeutigen Merkmalen im E-Bon.
     
-    Aktuell wird nur dm drogerie-markt erkannt."""
+    Aktuell wird nur dm drogerie-markt und REWE erkannt."""
 
+    supermarkt = None
     daten = pdf.extract([
-        ('supermarkt', ':contains("ffnungszeiten auf dm.de")', lambda match: match.text()[-5:-3])
+        ('with_formatter', 'text'),
+        ('supermarkt_rewe', ':contains("REWE Markt GmbH")', lambda match: 'REWE' if match else ''),
+        ('supermarkt_dm', ':contains("ffnungszeiten auf dm.de")', lambda match: 'dm' if match else ''),
     ])
-    return daten["supermarkt"] # idealerweise 'dm', wenn es sich um dm handelt
+
+    # Überprüfe, welcher Supermarkt gefunden wurde
+    if daten['supermarkt_dm'] == 'dm':
+        supermarkt = 'dm'
+    elif daten['supermarkt_rewe'] == 'REWE':
+        supermarkt = 'REWE'
+    else:
+        supermarkt = None
+    return supermarkt
 
 
 def main():
