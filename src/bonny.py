@@ -7,7 +7,7 @@ from playhouse.dataset import DataSet
 import pytz
 
 import bonny_config as bonny_config
-import parse_dm as parse_dm
+from services.parser_dm import ParserDM
 from services.parser_rewe import ParserREWE
 from model.Article import Article
 from model.Receipt import Receipt
@@ -80,7 +80,8 @@ def main():
         # Abhängig vom erkannten Supermarkt E-Bon lesen
         if supermarkt == 'dm':
             print('Extrahiere Daten aus dem E-Bon ', pdf_datei, ' von: dm-drogerie markt.')
-            #parse_dm.extrahiere_von_dm(pdf)
+            dm_parser = ParserDM()
+            dm_parser.extrahiere_daten(pdf)
         elif supermarkt == 'REWE':
             print('Extrahiere Daten aus dem E-Bon ', pdf_datei, ' von: REWE.')
             rewe_parser = ParserREWE()

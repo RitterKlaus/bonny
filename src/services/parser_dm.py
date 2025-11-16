@@ -5,6 +5,9 @@ from model.Article import Article
 from model.Receipt import Receipt
 from services.parser import Parser
 
+import pytz
+import bonny_config as bonny_config
+
 def truncate_after_third_last_space(input_string):
     # Finden Sie die Position des drittletzten Leerzeichens
     third_last_space_position = input_string.rfind(' ', 0, input_string.rfind(' ', 0, input_string.rfind(' ')))
@@ -20,6 +23,7 @@ class ParserDM(Parser):
 
     def __init__(self):
         self.market = 'dm'
+        self.TZ = pytz.timezone(bonny_config.TIMEZONE)
 
     def parse_artikelzeile(self, zeile):
         """Eine Zeile bei dm ist wie folgt aufgebaut:
@@ -63,34 +67,38 @@ class ParserDM(Parser):
         Diese Funktion liest alle Zeilen und verwirft alle, die keine Artikel-Zeilen sind.
         """
 
-        storename = 'dm'
+        receipt = Receipt(store = self.market, date_of_purchase = datetime.now(), number = 'none') # mit unbekannten Werten starten 
+        
         # Definieren Sie den XPath-Ausdruck, um nach LTTextBoxHorizontal-Tags zu suchen
         xpath_expression = '//LTTextBoxHorizontal'
 
-        receipt = Receipt(store = storename, date_of_purchase = datetime.now(), number = 'none') # mit unbekannten Werten starten
         # Extrahieren Sie die Texte aus den gefundenen Tags
         text_elements = pdf.tree.xpath(xpath_expression)
         artikelzeilen = []
         for element in text_elements:
             text_content = element.text
             gefunden, betrag, mwst = self.parse_artikelzeile(text_content)
+            
             if gefunden:
                 artikelzeilen.append(truncate_after_third_last_space(text_content))
                 print ('Betrag:', betrag, ' MwSt: ', mwst)
                 article = Article(description = truncate_after_third_last_space(text_content),
                                 price = betrag,
                                 tax = 0,
-                                store = storename,
+                                store = self.market,
                                 date_of_purchase = datetime(2023, 10, 3,
                                                             15, 0, 0, 0,
                                                             tzinfo=self.TZ))
                 article.save()
+
             dop_found, found_dop = self.parse_date_of_purchase(text_content)
             if dop_found:
                 receipt.date_of_purchase = found_dop
+            
             number_found, found_number = self.parse_receipt_number(text_content)
             if number_found:
                 receipt.number = found_number
+
         receipt.save()
         print (artikelzeilen)
         return artikelzeilen 
